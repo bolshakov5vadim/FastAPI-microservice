@@ -1,23 +1,8 @@
-Скачать папку. В e.env записать адрес БД
+Скачать - wget https://github.com/bolshakov5vadim/FastAPI-microservice/archive/main.zip
+unzip main.zip
 
-Затем
+В e.env записать адрес БД
 
-cd home/../Desktop/fastapi_app
+sudo docker build . -t fastapi_app
 
-sudo docker build . -t my_fastapi
-
-sudo docker run -p 80:80 my_fastapi
-p 443:443 если HTTPS
-
-
-Теперь у вас API для базы данных!
-
--------------
-
-Изменения:
-
-- FAST API добавлены routes "Удалять по условию"
-
-- FAST API добавлено асихронное исполнение Session
-
-- Добавлен logger
+sudo docker run -p 8000:8000 fastapi_app
