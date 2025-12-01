@@ -6,26 +6,12 @@ import psycopg2 # Иногда требуется для postgres
 # Бибилотеки SQL
 
 from decouple import Config, RepositoryEnv
-ENV_FILE = "e.env"
+ENV_FILE = 'e.env'
 config = Config(RepositoryEnv(ENV_FILE))
 # Подключение конфиг-файла
 
-# Создаем модель бд
 
-class Base(DeclarativeBase): pass
-class Person(Base):
-   __tablename__ = config("TABLE_NAME")
+engine = create_engine(config('DB_LINK')) # create_async_engine()
+SessionLocal = sessionmaker(autoflush=False, bind=engine) # async_sessionmaker()
 
-   id = Column(Integer, primary_key=True, index=True)
-   name = Column(String)
-   surname = Column(String)
-   birthday = Column(Integer)
-   status = Column(String)
-
-engine = create_engine(config("DB_LINK"))
-SessionLocal = sessionmaker(autoflush=False, bind=engine)
-
-try:
- Base.metadata.create_all(bind=engine) # Создание таблиц, если их нет
-except Exception as e:
- print(f"Ошибка при работе с БД: {e}")
+Base.metadata.create_all(bind=engine) # Создание таблиц, если их нет
