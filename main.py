@@ -26,12 +26,12 @@ class Response(BaseModel):
     description: str
     likes: int
 
-    class Config:
-        orm_mode = True 
+    class ConfigDict:
+        from_attributes = True 
 
 
-def get_db():
-    db = SessionLocal()
+def get_db(): # async
+    db = SessionLocal() # async with SessionLocal() as session:
     try:
         yield db
     except Exception as e:
@@ -49,17 +49,17 @@ app = FastAPI()
 
 
 @app.get("/api", response_model = Response)
-def read(data  = Body(), db: Session = Depends(get_db)):
+def read(data  = Body(), db: Session = Depends(get_db)): # async AsyncSession()
     
     try:
 
         if(data["page"]): entity = db.query(Entity).limit(10).offset((data["page"] - 1) * 10).all()
-        # if(data["classroom"]): entity = db.query(Entity).filter(Entity.classroom == data["classroom"])
-        # Возврат похожих картинок. Вектор "classroom" будет выдаваться классификатором 
+        # result.scalar()? Зачем брать первый элем? scalars()? Зачем брать первый столбец?
+        # db.execute используется для сырых запросов db.execute(delete(Entity))
         return Response.from_orm(entity)
 
     except Exception as e:
-        logger.info(f"Data requested for page {data["page"]}")
+        logger.error("Error requesting for page "+data["page"])
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
 
@@ -71,14 +71,14 @@ def create(data  = Body(), db: Session = Depends(get_db)):
         entity = Entity(name=data["name"], description=data["description"], likes=data["likes"])
         # Если используется auto-increment, не нужно отправлять id 
 
-        db.add(entity)
+        db.add(entity) # await
         db.commit()
         db.refresh(entity)
         logger.info(f"Data posted")
         return Response.from_orm(entity)
     except Exception as e:
         db.rollback()
-        logger.error(f"Error creating entity: {str(e)}")
+        logger.error(f"Error creating entity: "+str(e))
         raise HTTPException(status_code=404, detail="Пользователь не создан")
 
   
@@ -89,9 +89,9 @@ def delete(id: int, db: Session = Depends(get_db)):
         entity = db.query(Entity).filter(Entity.id == id).first() # Запрос
         db.delete(entity)
         db.commit()
-        logger.info(f"Data deleted for id: {entity.id}")
+        logger.info(f'Data deleted for id: {entity.id}')
         return Response.from_orm(entity)
     except Exception as e:
         db.rollback()
-        logger.error(f"Error deleteing entity: {str(e)}")
-         raise HTTPException(status_code=404, detail="Пользователь не удален")
+        logger.error("Error deleteing entity: "+str(e))
+        raise HTTPException(status_code=404, detail="Пользователь не удален")

@@ -14,4 +14,4 @@ config = Config(RepositoryEnv(ENV_FILE))
 engine = create_engine(config('DB_LINK')) # create_async_engine()
 SessionLocal = sessionmaker(autoflush=False, bind=engine) # async_sessionmaker()
 
-Base.metadata.create_all(bind=engine) # Создание таблиц, если их нет
+

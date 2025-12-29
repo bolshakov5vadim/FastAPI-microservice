@@ -1,6 +1,8 @@
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import  Column, Integer, String
+from SQLsession import engine
 import psycopg2 # Иногда требуется для postgres
+
 # Бибилотеки SQL
 
 from decouple import Config, RepositoryEnv
@@ -18,3 +20,5 @@ class Entity(Base):
    name = Column(String)
    description = Column(String)
    likes = Column(Integer)
+   
+Base.metadata.create_all(bind=engine) # Создание таблиц, если их нет
