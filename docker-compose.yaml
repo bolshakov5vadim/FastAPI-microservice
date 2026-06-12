@@ -1,0 +1,9 @@
+version: '3.3'
+
+services:
+  fastapi_app:
+    build:
+      context: ./fastapi_app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
